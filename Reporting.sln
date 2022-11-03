@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Functions", "Functions\Functions.csproj", "{4232B8CF-FDE7-4D3E-B67B-CE51076F5795}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Database\Database.csproj", "{8773A36B-AD63-4FBC-98EC-8A808A1BEADA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4232B8CF-FDE7-4D3E-B67B-CE51076F5795}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4232B8CF-FDE7-4D3E-B67B-CE51076F5795}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4232B8CF-FDE7-4D3E-B67B-CE51076F5795}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4232B8CF-FDE7-4D3E-B67B-CE51076F5795}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8773A36B-AD63-4FBC-98EC-8A808A1BEADA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8773A36B-AD63-4FBC-98EC-8A808A1BEADA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8773A36B-AD63-4FBC-98EC-8A808A1BEADA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8773A36B-AD63-4FBC-98EC-8A808A1BEADA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

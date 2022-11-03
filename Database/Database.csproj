@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FlowerBI.Engine" Version="3.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include=".config\dotnet-tools.json" />
+    </ItemGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+        <Exec Command="dotnet flowerbi ts bin/Debug/$(TargetFramework)/Database.dll Database.AdventureWorks2019Schema ../React/frontend/AdventureWorks2019Schema.ts" />
+    </Target>
+</Project>

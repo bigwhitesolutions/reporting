@@ -83,62 +83,64 @@ function App() {
     <div className="min-h-screen flex">
       <nav className="w-112 flex-none px-2">
         <h2>Columns</h2>
-        <fieldset id="checkboxes">
+        {TableDefinitions.map((x) => (
+          <div className="flex items-center mb-1" key={x.name}>
+            <input
+              onChange={() => handleOnChange(x.name)}
+              id={x.name}
+              type="checkbox"
+              checked={
+                checkedState.filter((f) => f.key.name === x.name)[0].value
+              }
+              value={x.name}
+              name={x.name}
+              className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+            />
+            <label
+              htmlFor={x.name}
+              className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+            >
+              {x.name}
+            </label>
+          </div>
+        ))}
+        <h2>Aggregation</h2>
+        <select ref={aggregationColumnRef} name="aggregation" id="aggregations">
           {TableDefinitions.map((x) => (
-            <div className="flex items-center mb-1">
-              <input
-                onChange={() => handleOnChange(x.name)}
-                id={x.name}
-                type="checkbox"
-                checked={
-                  checkedState.filter((f) => f.key.name === x.name)[0].value
-                }
-                value={x.name}
-                name={x.name}
-                className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-              />
-              <label
-                htmlFor={x.name}
-                className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-              >
-                {x.name}
-              </label>
-            </div>
+            <option key={x.name} value={x.name}>
+              {x.name}
+            </option>
           ))}
-          <h2>Aggregation</h2>
-          <select
-            ref={aggregationColumnRef}
-            name="aggregation"
-            id="aggregations"
-          >
-            {TableDefinitions.map((x) => (
-              <option value={x.name}>{x.name}</option>
-            ))}
-          </select>
-          <br />
-          <select
-            ref={aggregationFunctionRef}
-            name="aggregation"
-            id="aggregations"
-          >
-            {Object.entries(AggregationTypes).map((x) => (
-              <option value={x[0]}>{x[1]}</option>
-            ))}
-          </select>
-        </fieldset>
+        </select>
+        <br />
+        <select
+          ref={aggregationFunctionRef}
+          name="aggregation"
+          id="aggregations"
+        >
+          {Object.entries(AggregationTypes).map((x) => (
+            <option key={x[0]} value={x[0]}>
+              {x[1]}
+            </option>
+          ))}
+        </select>
       </nav>
 
       <main className="flex-1 min-w-0 overflow-auto px-2">
-        {data.records.map((x) => (
-          <div key={x.selected == null ? -1 : x.selected[0].toString()}>
-            <>{JSON.stringify(x)}</>
-          </div>
-        ))}
+        {data.records.length > 0
+          ? data.records?.map((records, i) =>
+              records.selected?.map((selectedRecords, j) => (
+                <div key={selectedRecords?.toString() ?? -1}>
+                  <>{selectedRecords}</>
+                </div>
+              ))
+            )
+          : undefined}
       </main>
       <textarea
         readOnly={true}
         rows={10}
-        defaultValue={JSON.stringify(jsonifyQuery(query))}
+        value={JSON.stringify(jsonifyQuery(query))}
       ></textarea>
     </div>
   );

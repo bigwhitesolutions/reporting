@@ -6,11 +6,13 @@ import {
   jsonifyQuery,
   AggregationType,
   QueryColumn,
+  AggregationJson,
 } from "flowerbi";
-import { Product, ProductSubcategory } from "../AdventureWorks2019Schema";
+import { Product } from "../AdventureWorks2019Schema";
 import "./App.css";
 import { localFetch } from "./api-helpers";
 import { TableDefinitions } from "./schema-helpers";
+import React from "react";
 
 const AggregationTypes: Record<AggregationType, string> = {
   Avg: "Average",
@@ -22,6 +24,8 @@ const AggregationTypes: Record<AggregationType, string> = {
 
 function App() {
   const [data, setData] = useState<QueryResultJson | undefined>(undefined);
+  const aggregationColumnRef = React.useRef<HTMLSelectElement>(null);
+  const aggregationFunctionRef = React.useRef<HTMLSelectElement>(null);
   const [query, setQuery] = useState<Query<QuerySelect>>({
     select: {
       productCount: Product.ProductId.count(),
@@ -37,18 +41,22 @@ function App() {
     })
   );
 
-  const getData = () =>
+  useEffect(() => {
     localFetch(jsonifyQuery(query)).then((x) => {
       setData(x);
     });
-
-  useEffect(() => {
-    getData();
   }, [query]);
 
   useEffect(() => {
-    let dictionary: QuerySelect = Object.assign(
-      { productCount: Product.ProductId.count() },
+    const aggregation: AggregationJson = {
+      column: aggregationColumnRef.current?.value ?? Product.ProductId.name,
+      function:
+        (aggregationFunctionRef.current?.value as any as AggregationType) ??
+        "Sum",
+    };
+    console.log(aggregation);
+    const dictionary: QuerySelect = Object.assign(
+      { aggregation },
       ...checkedState
         .filter((x) => x.value)
         .map((x) => ({ [x.key.name]: x.key }))
@@ -74,7 +82,7 @@ function App() {
   return (
     <div className="min-h-screen flex">
       <nav className="w-112 flex-none px-2">
-        Columns
+        <h2>Columns</h2>
         <fieldset id="checkboxes">
           {TableDefinitions.map((x) => (
             <div className="flex items-center mb-1">
@@ -97,11 +105,31 @@ function App() {
               </label>
             </div>
           ))}
+          <h2>Aggregation</h2>
+          <select
+            ref={aggregationColumnRef}
+            name="aggregation"
+            id="aggregations"
+          >
+            {TableDefinitions.map((x) => (
+              <option value={x.name}>{x.name}</option>
+            ))}
+          </select>
+          <br />
+          <select
+            ref={aggregationFunctionRef}
+            name="aggregation"
+            id="aggregations"
+          >
+            {Object.entries(AggregationTypes).map((x) => (
+              <option value={x[0]}>{x[1]}</option>
+            ))}
+          </select>
         </fieldset>
       </nav>
 
       <main className="flex-1 min-w-0 overflow-auto px-2">
-        {data.records.map((x, i) => (
+        {data.records.map((x) => (
           <div key={x.selected == null ? -1 : x.selected[0].toString()}>
             <>{JSON.stringify(x)}</>
           </div>

@@ -1,8 +1,10 @@
 import {
   AggregationJson,
   AggregationType,
+  jsonifyQuery,
   Query,
   QueryColumn,
+  QueryJson,
   QuerySelect,
 } from 'flowerbi'
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
@@ -11,7 +13,7 @@ import { Product } from '../../AdventureWorks2019Schema'
 import { AggregationTypes, TableDefinitions } from '../schema-helpers'
 
 export interface ColumnProps {
-  setQuery: Dispatch<SetStateAction<Query<QuerySelect>>>
+  setQuery: Dispatch<SetStateAction<QueryJson>>
 }
 export function Columns({ setQuery }: ColumnProps): JSX.Element {
   const aggregationColumnRef = React.useRef<HTMLSelectElement>(null)
@@ -41,7 +43,7 @@ export function Columns({ setQuery }: ColumnProps): JSX.Element {
       totals,
     }
 
-    setQuery(updatedQuerySelect)
+    setQuery(jsonifyQuery(updatedQuerySelect))
   }, [checkedState, setQuery])
 
   const handleOnChange: (key: string) => void = (key: string) => {

@@ -1,27 +1,28 @@
-import { useEffect, useState } from "react";
-import { QueryResultJson, Query, QuerySelect, jsonifyQuery } from "flowerbi";
-import { Product } from "../AdventureWorks2019Schema";
-import "./App.css";
-import { localFetch } from "./api-helpers";
-import { Columns } from "./Components/Columns";
-import { TableDefinitions } from "./schema-helpers";
+import { useEffect, useState } from 'react'
+import { QueryResultJson, Query, QuerySelect, jsonifyQuery } from 'flowerbi'
+import { Product } from '../AdventureWorks2019Schema'
+import './App.css'
+import { Columns } from './Components/Columns'
+import { TableDefinitions } from './schema-helpers'
+import localFetch from './api-helpers'
 
-function App() {
-  const [data, setData] = useState<QueryResultJson | undefined>(undefined);
+function App(): JSX.Element {
+  const [data, setData] = useState<QueryResultJson | undefined>(undefined)
   const [query, setQuery] = useState<Query<QuerySelect>>({
-    select: {
-      productCount: Product.ProductId.count(),
-    },
+    select: { productCount: Product.ProductId.count() },
     totals: false,
-  });
+  })
 
   useEffect(() => {
-    localFetch(jsonifyQuery(query)).then((x) => {
-      setData(x);
-    });
-  }, [query]);
+    localFetch(jsonifyQuery(query))
+      .then((x) => {
+        setData(x)
+      })
+      // eslint-disable-next-line no-console
+      .catch((x) => console.log(x))
+  }, [query])
 
-  if (!data || !data.records) return <>Loading</>;
+  if (data == null || data.records == null) return <>Loading</>
 
   return (
     <div className="flex flex-col h-screen">
@@ -32,14 +33,14 @@ function App() {
           </div>
         </div>
         <main role="main" className="w-full flex-grow pt-1 px-3 mb-auto">
-          {data.totals
+          {data.totals != null
             ? `Total: ${JSON.stringify(data.totals?.aggregated[0])}`
             : undefined}
           <table>
             <thead>
               <tr>
                 {Object.keys(query.select).map((selectKeys) => (
-                  <th>
+                  <th key={selectKeys}>
                     {TableDefinitions.filter(
                       (tableDefinitions) => tableDefinitions.name === selectKeys
                     )[0]?.field ?? selectKeys}
@@ -49,40 +50,36 @@ function App() {
             </thead>
             <tbody>
               {data.records.length > 0
-                ? data.records?.map((records) => {
-                    return (
-                      <tr>
-                        {records.aggregated?.map((selectedRecords) => (
-                          <td key={selectedRecords?.toString() ?? -1}>
-                            {selectedRecords}
-                          </td>
-                        ))}
-                        {records.selected?.map((selectedRecords) => (
-                          <td key={selectedRecords?.toString() ?? -1}>
-                            <>{selectedRecords}</>
-                          </td>
-                        ))}
-                      </tr>
-                    );
-                  })
+                ? data.records?.map((records, i) => (
+                    // eslint-disable-next-line react/no-array-index-key
+                    <tr key={i}>
+                      {records.aggregated?.map((selectedRecords) => (
+                        <td key={selectedRecords?.toString() ?? -1}>
+                          {selectedRecords}
+                        </td>
+                      ))}
+                      {records.selected?.map((selectedRecords) => (
+                        <td key={selectedRecords?.toString() ?? -1}>
+                          {selectedRecords.toString()}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
                 : undefined}
             </tbody>
           </table>
         </main>
-        <div className="w-fixed w-full flex-shrink flex-grow-0 px-2">
-          <div className="flex sm:flex-col px-2"></div>
-        </div>
       </div>
       <footer className="mt-auto left-0 bottom-0 absolute">
         <textarea
-          readOnly={true}
+          readOnly
           cols={100}
           rows={4}
           value={JSON.stringify(jsonifyQuery(query))}
-        ></textarea>
+        />
       </footer>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

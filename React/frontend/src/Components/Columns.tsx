@@ -4,61 +4,53 @@ import {
   Query,
   QueryColumn,
   QuerySelect,
-} from "flowerbi";
-import React, { Dispatch, SetStateAction, useEffect } from "react";
-import { useState } from "react";
-import { Product } from "../../AdventureWorks2019Schema";
-import { AggregationTypes, TableDefinitions } from "../schema-helpers";
+} from 'flowerbi'
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 
-export type ColumnProps = {
-  setQuery: Dispatch<SetStateAction<Query<QuerySelect>>>;
-};
-export function Columns(props: ColumnProps) {
-  const aggregationColumnRef = React.useRef<HTMLSelectElement>(null);
-  const aggregationFunctionRef = React.useRef<HTMLSelectElement>(null);
-  const totalsRef = React.useRef<HTMLInputElement>(null);
+import { Product } from '../../AdventureWorks2019Schema'
+import { AggregationTypes, TableDefinitions } from '../schema-helpers'
+
+export interface ColumnProps {
+  setQuery: Dispatch<SetStateAction<Query<QuerySelect>>>
+}
+export function Columns({ setQuery }: ColumnProps): JSX.Element {
+  const aggregationColumnRef = React.useRef<HTMLSelectElement>(null)
+  const aggregationFunctionRef = React.useRef<HTMLSelectElement>(null)
+  const totalsRef = React.useRef<HTMLInputElement>(null)
   const [checkedState, setCheckedState] = useState<
-    { key: QueryColumn<unknown>; value: boolean }[]
-  >(
-    TableDefinitions.map((x) => {
-      return { key: x.column, value: false };
-    })
-  );
+    Array<{ key: QueryColumn<unknown>; value: boolean }>
+  >(TableDefinitions.map((x) => ({ key: x.column, value: false })))
 
   useEffect(() => {
-    props.setQuery(generateQuery());
-  }, [checkedState]);
-
-  const generateQuery = () => {
     const aggregation: AggregationJson = {
       column: aggregationColumnRef.current?.value ?? Product.ProductId.name,
       function:
         (aggregationFunctionRef.current?.value as any as AggregationType) ??
-        "Sum",
-    };
+        'Sum',
+    }
     const dictionary: QuerySelect = Object.assign(
       { aggregation },
       ...checkedState
         .filter((x) => x.value)
         .map((x) => ({ [x.key.name]: x.key }))
-    );
+    )
 
-    const totals = !!totalsRef.current?.checked;
+    const totals = !!(totalsRef.current?.checked ?? false)
     const updatedQuerySelect: Query<QuerySelect> = {
       select: dictionary,
-      totals: totals,
-    };
+      totals,
+    }
 
-    return updatedQuerySelect;
-  };
+    setQuery(updatedQuerySelect)
+  }, [checkedState, setQuery])
 
-  const handleOnChange = (key: string) => {
+  const handleOnChange: (key: string) => void = (key: string) => {
     const updatedCheckedState = checkedState.map((item) =>
       item.key.name === key ? { key: item.key, value: !item.value } : item
-    );
+    )
 
-    setCheckedState(updatedCheckedState);
-  };
+    setCheckedState(updatedCheckedState)
+  }
 
   return (
     <>
@@ -99,7 +91,7 @@ export function Columns(props: ColumnProps) {
         ))}
       </select>
       <h2>Totals</h2>
-      <input ref={totalsRef} type="checkbox" id="totals"></input>
+      <input ref={totalsRef} type="checkbox" id="totals" />
     </>
-  );
+  )
 }

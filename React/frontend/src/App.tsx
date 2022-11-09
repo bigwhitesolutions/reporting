@@ -1,31 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
-import { QueryResultJson, jsonifyQuery, QueryJson } from 'flowerbi'
+import { jsonifyQuery, QueryJson, QueryResultJson } from 'flowerbi'
+import { useEffect, useState } from 'react'
 import { Product } from '../AdventureWorks2019Schema'
-import './App.css'
-import { Columns } from './Components/Columns'
-import { TableDefinitions } from './schema-helpers'
 import localFetch from './api-helpers'
-
-function localStorageItems(): Array<{
-  key: string
-  value: QueryJson | null
-}> {
-  const elements = []
-  for (let i = 0; i < localStorage.length; i += 1) {
-    const key = localStorage.key(i)
-    if (key?.startsWith('query-') === true) {
-      const item = localStorage.getItem(key)
-      if (item != null) {
-        const obj = JSON.parse(item)
-        elements.push({
-          key: key?.substring(6),
-          value: obj,
-        })
-      }
-    }
-  }
-  return elements
-}
+import './App.css'
+import { QueryBuilder } from './Components/QueryBuilder'
+import { QueryManager } from './Components/QueryManager'
+import { TableDefinitions } from './schema-helpers'
 
 function App(): JSX.Element {
   const [data, setData] = useState<QueryResultJson | undefined>(undefined)
@@ -36,10 +16,7 @@ function App(): JSX.Element {
     })
   )
 
-  const saveNameRef = useRef<HTMLInputElement>(null)
-
   useEffect(() => {
-    console.log('fetch', query)
     localFetch(query)
       .then((x) => {
         setData(x)
@@ -55,43 +32,12 @@ function App(): JSX.Element {
       <div className="w-full flex flex-col sm:flex-row flex-wrap sm:flex-nowrap py-4 flex-grow">
         <div className="w-fixed w-full flex-shrink flex-grow-0 px-4">
           <div className="sticky top-0 p-4 w-full h-full">
-            <h2>Saved Queries</h2>
-            {localStorageItems().map((x) => (
-              <div key={x.key}>
-                {x.key}{' '}
-                <button
-                  id="queryLoad"
-                  type="button"
-                  onClick={() =>
-                    x.value != null ? setQuery(x.value) : undefined
-                  }
-                >
-                  Hi
-                </button>
-              </div>
-            ))}
-            <label htmlFor="SaveName">
-              {'Label '}
-              <input type="text" id="SaveName" ref={saveNameRef} />
-            </label>
-            <br />
-            <button
-              className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
-              type="button"
-              onClick={() =>
-                localStorage.setItem(
-                  `query-${saveNameRef.current?.value ?? 'Not Named'}`,
-                  JSON.stringify(query)
-                )
-              }
-            >
-              Save Current Query
-            </button>
+            <QueryManager setQuery={setQuery} currentQuery={query} />
           </div>
         </div>
         <div className="w-fixed w-full flex-shrink flex-grow-0 px-4">
           <div className="sticky top-0 p-4 w-full h-full">
-            <Columns setQuery={setQuery} />
+            <QueryBuilder setQuery={setQuery} />
           </div>
         </div>
         <main role="main" className="w-full flex-grow pt-1 px-3 mb-auto">

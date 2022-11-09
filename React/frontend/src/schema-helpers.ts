@@ -1,4 +1,4 @@
-import { AggregationType } from 'flowerbi'
+import { AggregationType, FilterOperator } from 'flowerbi'
 import { AdventureWorks2019Schema } from '../AdventureWorks2019Schema'
 
 const QueryColumns = Object.values(AdventureWorks2019Schema).flatMap((x) =>
@@ -16,4 +16,14 @@ export const AggregationTypes: Record<AggregationType, string> = {
   Max: 'Maximum',
   Min: 'Minimum',
   Sum: 'Sum',
+}
+
+export const FilterTypes: Record<FilterOperator, string> = {
+  '<': '<',
+  '<=': '<=',
+  '<>': '<>',
+  '=': '=',
+  '>': '>',
+  '>=': '>=',
+  IN: 'In',
 }

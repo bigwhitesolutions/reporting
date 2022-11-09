@@ -1,29 +1,38 @@
 import {
   AggregationJson,
   AggregationType,
+  FilterJson,
+  FilterOperator,
   jsonifyQuery,
   Query,
   QueryColumn,
   QueryJson,
   QuerySelect,
 } from 'flowerbi'
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import React, { Dispatch, SetStateAction, useState } from 'react'
 
 import { Product } from '../../AdventureWorks2019Schema'
-import { AggregationTypes, TableDefinitions } from '../schema-helpers'
+import {
+  AggregationTypes,
+  FilterTypes,
+  TableDefinitions,
+} from '../schema-helpers'
 
 export interface ColumnProps {
   setQuery: Dispatch<SetStateAction<QueryJson>>
 }
-export function Columns({ setQuery }: ColumnProps): JSX.Element {
+export function QueryBuilder({ setQuery }: ColumnProps): JSX.Element {
   const aggregationColumnRef = React.useRef<HTMLSelectElement>(null)
   const aggregationFunctionRef = React.useRef<HTMLSelectElement>(null)
+  const filterFunctionRef = React.useRef<HTMLSelectElement>(null)
+  const filterTableRef = React.useRef<HTMLSelectElement>(null)
+  const filterInputRef = React.useRef<HTMLInputElement>(null)
   const totalsRef = React.useRef<HTMLInputElement>(null)
   const [checkedState, setCheckedState] = useState<
     Array<{ key: QueryColumn<unknown>; value: boolean }>
   >(TableDefinitions.map((x) => ({ key: x.column, value: false })))
 
-  useEffect(() => {
+  const applyQuery: () => void = () => {
     const aggregation: AggregationJson = {
       column: aggregationColumnRef.current?.value ?? Product.ProductId.name,
       function:
@@ -37,14 +46,31 @@ export function Columns({ setQuery }: ColumnProps): JSX.Element {
         .map((x) => ({ [x.key.name]: x.key }))
     )
 
+    let filters: FilterJson[] | undefined
     const totals = !!(totalsRef.current?.checked ?? false)
+    if (
+      filterTableRef.current != null &&
+      filterTableRef.current.value !== '' &&
+      filterFunctionRef.current != null &&
+      filterInputRef.current != null &&
+      filterInputRef.current.value !== ''
+    ) {
+      filters = filters ?? []
+      filters.push({
+        column: filterTableRef.current.value,
+        operator: filterFunctionRef.current.value as FilterOperator,
+        value: filterInputRef.current.value,
+      })
+    }
+
     const updatedQuerySelect: Query<QuerySelect> = {
       select: dictionary,
+      filters,
       totals,
     }
 
     setQuery(jsonifyQuery(updatedQuerySelect))
-  }, [checkedState, setQuery])
+  }
 
   const handleOnChange: (key: string) => void = (key: string) => {
     const updatedCheckedState = checkedState.map((item) =>
@@ -92,8 +118,30 @@ export function Columns({ setQuery }: ColumnProps): JSX.Element {
           </option>
         ))}
       </select>
+      <h2>Filters</h2>
+      <select ref={filterTableRef} name="filter" id="filter">
+        {Object.entries(TableDefinitions).map((x) => (
+          <option key={x[0]} value={x[1].name}>
+            {x[1].name}
+          </option>
+        ))}
+      </select>
+      <br />
+      <select ref={filterFunctionRef} name="filter" id="filter">
+        {Object.entries(FilterTypes).map((x) => (
+          <option key={x[0]} value={x[0]}>
+            {x[1]}
+          </option>
+        ))}
+      </select>
+      <br />
+      <input ref={filterInputRef} />
       <h2>Totals</h2>
       <input ref={totalsRef} type="checkbox" id="totals" />
+      <h2>Actions</h2>
+      <button type="button" onClick={applyQuery}>
+        Go
+      </button>
     </>
   )
 }

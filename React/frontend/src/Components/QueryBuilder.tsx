@@ -5,7 +5,6 @@ import {
   FilterOperator,
   jsonifyQuery,
   Query,
-  QueryColumn,
   QueryJson,
   QuerySelect,
 } from 'flowerbi'
@@ -14,9 +13,11 @@ import React, { Dispatch, SetStateAction, useState } from 'react'
 import { Product } from '../../AdventureWorks2019Schema'
 import {
   AggregationTypes,
+  BasicQueryColumn,
   FilterTypes,
-  TableDefinitions,
-} from '../schema-helpers'
+  NumberQueryColumn,
+} from '../QueryColumn-Extensions'
+import { TableDefinitions } from '../schema-helpers'
 
 export interface ColumnProps {
   setQuery: Dispatch<SetStateAction<QueryJson>>
@@ -29,9 +30,13 @@ export function QueryBuilder({ setQuery }: ColumnProps): JSX.Element {
   const filterInputRef = React.useRef<HTMLInputElement>(null)
   const totalsRef = React.useRef<HTMLInputElement>(null)
   const [checkedState, setCheckedState] = useState<
-    Array<{ key: QueryColumn<unknown>; value: boolean }>
+    Array<{
+      key: NumberQueryColumn<number> | BasicQueryColumn<string>
+      value: boolean
+    }>
   >(TableDefinitions.map((x) => ({ key: x.column, value: false })))
 
+  console.log(TableDefinitions)
   const applyQuery: () => void = () => {
     const aggregation: AggregationJson = {
       column: aggregationColumnRef.current?.value ?? Product.ProductId.name,
@@ -79,7 +84,6 @@ export function QueryBuilder({ setQuery }: ColumnProps): JSX.Element {
 
     setCheckedState(updatedCheckedState)
   }
-
   return (
     <>
       <h2>Columns</h2>
@@ -114,7 +118,7 @@ export function QueryBuilder({ setQuery }: ColumnProps): JSX.Element {
       <select ref={aggregationFunctionRef} name="aggregation" id="aggregations">
         {Object.entries(AggregationTypes).map((x) => (
           <option key={x[0]} value={x[0]}>
-            {x[1]}
+            {x[1].text}
           </option>
         ))}
       </select>
@@ -130,7 +134,7 @@ export function QueryBuilder({ setQuery }: ColumnProps): JSX.Element {
       <select ref={filterFunctionRef} name="filter" id="filter">
         {Object.entries(FilterTypes).map((x) => (
           <option key={x[0]} value={x[0]}>
-            {x[1]}
+            {x[1].text}
           </option>
         ))}
       </select>
